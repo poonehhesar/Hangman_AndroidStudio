@@ -1,0 +1,8 @@
+word
+application
+green
+java
+computer
+random
+banana
+purple
