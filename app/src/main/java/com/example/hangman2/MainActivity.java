@@ -21,6 +21,7 @@ import java.util.Scanner;
 
 public class MainActivity extends AppCompatActivity {
 
+    public static int wins;
     TextView txtWordGuessed;
     String wordGuessed;
     String wordDisplayedString;
@@ -35,6 +36,7 @@ public class MainActivity extends AppCompatActivity {
     final String WINNING_MESSAGE = "You won!";
     final String LOSING_MESSAGE = "You lost!";
     private Button scorebtn;
+    int listcounter = 0;
 
 
     void revealLetterInWord(char letter) {
@@ -57,9 +59,16 @@ public class MainActivity extends AppCompatActivity {
 
     void initializeGame () {
         //shuffle list
-        Collections.shuffle(myList);
+
         wordGuessed = myList.get(0);
-        myList.remove(0);
+        try {
+            myList.remove(listcounter);
+            listcounter++;
+        }
+        catch (Exception e) {
+            listcounter=0;
+        }
+
 
         wordDisplayedCharArray = wordGuessed.toCharArray();
 
@@ -67,9 +76,6 @@ public class MainActivity extends AppCompatActivity {
         for(int i = 0; i < wordDisplayedCharArray.length - 1; i++) {
             wordDisplayedCharArray[i] ='_';
         }
-
-        //reveal first letter
-        revealLetterInWord(wordDisplayedCharArray[0]);
 
         //reveal last letter
         revealLetterInWord(wordDisplayedCharArray[wordDisplayedCharArray.length - 1]);
@@ -83,7 +89,7 @@ public class MainActivity extends AppCompatActivity {
         //clear input field
         edtInput.setText("");
 
-        //initalize string for letters tried
+        //initialize string for letters tried
         lettersTried = " ";
         txtLettersTried.setText(MESSAGE_WITH_LETTERS_TRIED);
 
@@ -139,7 +145,8 @@ public class MainActivity extends AppCompatActivity {
                         Toast.LENGTH_SHORT).show();
             }
         }
-       initializeGame();
+        Collections.shuffle(myList);
+        initializeGame();
 
         edtInput.addTextChangedListener(new TextWatcher() {
             @Override
@@ -149,7 +156,10 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 if (s.length() !=0){
-                    checkIfLetterIsInWord(s.charAt(0));
+                    String str = s.toString();
+                    checkIfLetterIsInWord(str.toLowerCase());
+                    edtInput.setText("");
+
                 }
             }
 
@@ -174,18 +184,22 @@ public class MainActivity extends AppCompatActivity {
     }
     public void openScoreActivity() {
         Intent intent = new Intent (this, ScoreActivity.class);
+        intent.putExtra("wins",wins);
         startActivity(intent);
     }
 
-    void checkIfLetterIsInWord(char letter) {
+    void checkIfLetterIsInWord(String letter) {
         if(wordGuessed.indexOf(letter) >=0) {
             if (wordDisplayedString.indexOf(letter) < 0){
-                revealLetterInWord(letter);
+                char let = letter.charAt(0);
+                revealLetterInWord(let);
 
                 displayWordOnScreen();
 
                 if (!wordDisplayedString.contains("_")) {
                     txtTriesLeft.setText(WINNING_MESSAGE);
+                    wins++;
+
                 }
             }
         }
